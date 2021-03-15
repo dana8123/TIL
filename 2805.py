@@ -23,6 +23,6 @@ while (start <= end):
 
     else:
         end = mid - 1
-        H = midㄴ
+        H = mid
     if M == trees
     break
