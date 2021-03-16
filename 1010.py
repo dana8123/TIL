@@ -1,9 +1,14 @@
-case = int(input())
-dari = []
+n, k = map(int, input().split())
 
-n, m = int(input().split())
-for i in range(n):
-    for j in range(m):
-        dari.append(list(range(n)))
 
-print(dari)
+def factorial(a):
+    if a > 1:
+        return a * factorial(a-1)
+    return 1
+
+
+def binal(n, k):
+    return factorial(n) // (factorial(k)*factorial(n-k))
+
+
+print(binal(n, k))

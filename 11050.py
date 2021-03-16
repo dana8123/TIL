@@ -1,4 +1,6 @@
-n, k = map(int, input().split())
+case = int(input())
+for i in range(case):
+    n, m = map(int, input().split())
 
 
 def factorial(a):
@@ -7,8 +9,8 @@ def factorial(a):
     return 1
 
 
-def binal(n, k):
-    return factorial(n) // (factorial(k)*factorial(n-k))
+def binal(n, m):
+    return factorial(m) // (factorial(n)*factorial(m-n))
 
 
-print(binal(n, k))
+print(binal(n, m))
