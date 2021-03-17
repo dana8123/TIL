@@ -24,13 +24,16 @@ def dfs(start_node, visited_node):
 
 def bfs(start_node, visited_node):
     visited_node = []
-    queue = [start_node]
+    queue = [start_node]  # startnode에서 시작한다
     while queue:
-        current_node = queue.pop()
+        current_node = queue.pop(0)
         visited_node.append(current_node)
+        # 그래프 내의 start node열의 개수만큼(연결가능한?) for문,
         for i in range(len(a[start_node])):
-            if a[start_node][i] == 1 and (i not in visited_node):
-                visited_node.append(i)
+            # 현재노드와 인접한 노드가 연결되어있고, i값을 방문하지않았다면
+            # 큐에 없을때 라는 조건이 추가 된 이유: 방문하지않은 노드가 또 ㅊ
+            if a[current_node][i] == 1 and (i not in visited_node) and (i not in queue):
+                queue.append(i)
     return visited_node
 
 
