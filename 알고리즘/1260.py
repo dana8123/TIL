@@ -15,11 +15,24 @@ def dfs(start_node, visited_node):
     stack = [start_node]
     while stack:
         current_node = stack.pop()
-        visited_node = current_node
+        visited_node.append(current_node)
         for i in range(len(a[start_node])):
             if a[start_node][i] == 1 and (i not in visited_node):
-                stack.append(i)
+                dfs(i, visited_node)
     return visited_node
 
 
-print(dfs(v, []))
+def bfs(start_node, visited_node):
+    visited_node = []
+    queue = [start_node]
+    while queue:
+        current_node = queue.pop()
+        visited_node.append(current_node)
+        for i in range(len(a[start_node])):
+            if a[start_node][i] == 1 and (i not in visited_node):
+                visited_node.append(i)
+    return visited_node
+
+
+print(" ".join(map(str, (dfs(v, [])))))
+print((" ".join(map(str, bfs(v, [])))))
