@@ -1,4 +1,4 @@
-n = int(input())  # 스트링으로 받아지나..?ㄴ
+n = int(input())
 count = 0
 six_n = 666
 while True:
