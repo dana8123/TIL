@@ -2,6 +2,18 @@ const express = require('express');
 const Goods = require('../schemas/goods');
 
 const router = express.Router();
+
+//body 넘겨주기
+router.post('/goods',async(req,res)=>{
+  const{ goodsId, name, thumbnailUrl, category, price } = req.body;
+
+  isExist = await Goods.find({ goodsId});
+  if ( isExist == 0 ){
+    await Goods.create({ goodsId, name, thumbnailUrl, category, price });
+  }
+  res.send({ result: "sucess" });
+});
+
 //익명 쇼핑몰 - RESTful(REST하게) API 만들기(2)
 router.get('/goods',async(req,res,next)=>{
   try{
@@ -15,6 +27,7 @@ router.get('/goods',async(req,res,next)=>{
   //TODO: req,res,next와 req,res 의 차이점. 몽고디비 표기법 
 })
 
+//상세페이지 
 router.get('/goods/:goodsId',async (req,res)=>{
   const {goodsId} = require.params;
   goods = await Goods.findOne({goodsId : goodsId});
