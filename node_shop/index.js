@@ -21,7 +21,8 @@ app.get('/detail',(req,res)=>{
   res.render('detail')
 })
 app.use('/user',userRouter);
-app.use('/goods',goodsRouter);
+app.use('/goods',goodsRouter); //이건 지워야하는건가?
+app.use("/api", [goodsRouter]);
 
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
