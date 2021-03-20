@@ -7,7 +7,11 @@ const userRouter = require('./routes/user');
 
 connect();
 
+app.use(express.json())
+
+
 app.use(express.static('public'));
+
 
 app.get('/', (req, res) => {
   res.send('hello')
@@ -23,6 +27,7 @@ app.get('/detail',(req,res)=>{
 app.use('/user',userRouter);
 app.use('/goods',goodsRouter); //이건 지워야하는건가?
 app.use("/api", [goodsRouter]);
+
 
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');

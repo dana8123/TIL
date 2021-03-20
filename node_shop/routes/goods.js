@@ -14,6 +14,7 @@ router.post('/goods',async(req,res)=>{
   res.send({ result: "sucess" });
 });
 
+
 //익명 쇼핑몰 - RESTful(REST하게) API 만들기(2)
 router.get('/goods',async(req,res,next)=>{
   try{
