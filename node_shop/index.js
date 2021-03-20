@@ -14,16 +14,13 @@ app.use(express.static('public'));
 
 
 app.get('/', (req, res) => {
-  res.send('hello')
-})
-
-app.get('/home', (req, res) => {
-  res.render('index');
+  res.render('index')
 })
 
 app.get('/detail',(req,res)=>{
   res.render('detail')
 })
+
 app.use('/user',userRouter);
 app.use('/goods',goodsRouter); //이건 지워야하는건가?
 app.use("/api", [goodsRouter]);
