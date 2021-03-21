@@ -21,7 +21,23 @@ router.get("/goods/add/crawling", async(req,res)=>{
       const $ = cheerio.load(content);
       const list = $("ol li");
       await list.each( async(i, tag) => {
-        
+        let desc = $(tag).find("p.copy a").text()
+        let image = $(tag).find("p.image a img").attr("src")
+        let title = $(tag).find("p.image a img").attr("alt")
+        let price = $(tag).find("p.price strong").text()
+
+        if(desc && image && title && price){
+          price = price.slice(0,-1).replace(/(,)/g,"")
+          let date = new Date()
+          let goodsId = date.getTime()
+          await Goods.create({
+            goodsId : goodsId,
+            name : title,
+            thumbnailUrl : image,
+            category : "도서",
+            price: price
+          })
+        }
       })
     });
     res.send({ result: "success" , message: "크롤링이 완료되었습니다."});
