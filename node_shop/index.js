@@ -30,6 +30,10 @@ app.get('/cart', (req, res) => {
   res.render('cart');
 })
 
+app.get('/order', (req,res) => {
+  res.render('order')
+})
+
 
 app.use('/user',userRouter);
 app.use('/goods',goodsRouter); //이건 지워야하는건가?
