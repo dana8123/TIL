@@ -4,6 +4,7 @@ const connect = require('./schemas');
 const port = 3000
 const goodsRouter = require('./routes/goods');
 const userRouter = require('./routes/user');
+app.use(express.urlencoded({ extended: false }))
 
 connect();
 
@@ -12,22 +13,29 @@ app.use(express.json())
 
 app.use(express.static('public'));
 
+app.set('views', __dirname + '/views');
+app.set('view engine', 'ejs');
 
-app.get('/', (req, res) => {
-  res.render('index')
+
+
+app.get('/home',(req,res)=>{
+  res.render('index');
 })
 
 app.get('/detail',(req,res)=>{
   res.render('detail')
 })
 
+app.get('/cart', (req, res) => {
+  res.render('cart');
+})
+
+
 app.use('/user',userRouter);
 app.use('/goods',goodsRouter); //이건 지워야하는건가?
 app.use("/api", [goodsRouter]);
 
 
-app.set('views', __dirname + '/views');
-app.set('view engine', 'ejs');
 
 
 app.listen(port, () => {
