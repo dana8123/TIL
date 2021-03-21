@@ -80,5 +80,18 @@ router.delete("/goods/:goodsId/cart", async(req,res)=>{
 });
 
 
+router.patch("/goods/:goodsId/cart", async(req,res) => {
+  const { goodsId } = req.params;
+  const { quantity } = req.body;
+
+  isCart = await Cart.find({ goodsId });
+  console.log(isCart, quantity);
+  if (isCart.length) {
+    await Cart.updateOne({ goodsId }, { $set: { quantity }});
+  }
+
+  res.send({ result: "success"})
+});
+
 
 module.exports = router;
