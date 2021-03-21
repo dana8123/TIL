@@ -46,4 +46,26 @@ router.post("/goods/:goodsId/cart", async (req, res) => {
   res.send({ result: "success" });
 });
 
+router.get("/cart", async (req, res) => {
+  const cart = await Cart.find({});
+  const goodsId = cart.map(cart => cart.goodsId);
+
+  goodsInCart = await Goods.find()
+    .where("goodsId")
+    .in(goodsId);
+
+  concatCart = cart.map(c => {
+    for (let i = 0; i < goodsInCart.length; i++) {
+      if (goodsInCart[i].goodsId == c.goodsId) {
+        return { quantity: c.quantity, goods: goodsInCart[i] };
+      }
+    }
+  });
+
+  res.json({
+    cart: concatCart
+  });
+});
+
+
 module.exports = router;
