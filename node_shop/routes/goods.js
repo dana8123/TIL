@@ -8,7 +8,6 @@ const axios = require("axios");
 const iconv = require("iconv-lite");
 const url = 
   "http://www.yes24.com/24/Category/BestSeller"
-const content = iconv.decode(html.data, "EUC-KR").toString();
 
 
 router.get("/goods/add/crawling", async(req,res)=>{
@@ -18,7 +17,12 @@ router.get("/goods/add/crawling", async(req,res)=>{
       method : "GET",
       responseType: "arraybuffer",
     }).then(async(html) => {
-
+      const content = iconv.decode(html.data, "EUC-KR").toString();
+      const $ = cheerio.load(content);
+      const list = $("ol li");
+      await list.each( async(i, tag) => {
+        
+      })
     });
     res.send({ result: "success" , message: "크롤링이 완료되었습니다."});
   } catch(error){
