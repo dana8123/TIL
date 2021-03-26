@@ -64,7 +64,9 @@ router.patch("/todos/:todosId", async (req,res) =>{
 
 //할 일 삭제하기
 router.delete("/todos/:todoId", async (req,res)=>{
-
+  const { todoId } = req.params;
+  await Todo.findOneAndDelete(todoId);
+  res.send({});
 })
 
 app.use("/api", bodyParser.json(), router);
