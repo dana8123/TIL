@@ -44,10 +44,9 @@ router.get("/todos", async(req,res)=>{
 //할 일 순서 바꿔주기
 router.patch("/todos/:todosId", async (req,res) =>{
   const { todoId } = req.params;
-  const { order } = req.body;
+  const { order, value, done } = req.body;
 
   const todo = await Todo.findOne(todoId).exec();
-
   if (order) {
     const targetTodo = await Todo.findOne({ order }).exec();
     if (targetTodo) {
@@ -55,8 +54,13 @@ router.patch("/todos/:todosId", async (req,res) =>{
       await targetTodo.save();
     }
     todo.order = order;
-    await todo.save();
+  } else if (value){
+    todo.value = value;
+  } else if(done !== undefined){
+    todo.doneAt = done ? new Date() : null;
   }
+
+    await todo.save();      
 
   res.send({});
 });
