@@ -9,6 +9,11 @@ const Todo = require("./models/todo");
 
 db.on("error", console.error.bind(console, "connection error:"));
 
+mongoose.connect("mongodb://localhost/todo-demo", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
 router.get("/", (req, res) => {
   res.send("Hi!");
 });
@@ -17,8 +22,15 @@ router.get("/", (req, res) => {
 router.post("/todos",async (req,res) =>{
   const { value } = req.body;
   const maxOrderByUserId = await Todo.findOne().sort("-order").exec();
-  const order = maxOrderByUserId ? maxOrderByUserId.order + 1 : 1;
+  let order = 1;
+
+  if (maxOrderByUserId) {
+    order = maxOrderByUserId.order + 1;
+  }
+
+  const todo = new Todo({ value, order });
   await todo.save();
+
   res.send({ todo });
 })
 
@@ -34,31 +46,30 @@ router.patch("/todos/:todosId", async (req,res) =>{
   const { todoId } = req.params;
   const { order } = req.body;
 
-  const currentTodo = await Todo.findById(todoId);
-  if (!currentTod) {
-    throw new Error("존재하지 않는 todo데이터입니다.");
-  }
+  const todo = await Todo.findOne(todoId).exec();
+
   if (order) {
     const targetTodo = await Todo.findOne({ order }).exec();
-    if (targetTodo){
+    if (targetTodo) {
       targetTodo.order = todo.order;
       await targetTodo.save();
     }
-    currentTodo.order = order;
+    todo.order = order;
+    await todo.save();
   }
-
-  await currentTodo.save();
 
   res.send({});
 });
 
+
+//할 일 삭제하기
+router.delete("/todos/:todoId", async (req,res)=>{
+
+})
+
 app.use("/api", bodyParser.json(), router);
 app.use(express.static("./assets"));
 
-mongoose.connect("mongodb://localhost/todo-demo", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
 
 app.listen(8080, () => {
   console.log("서버가 켜졌어요!");

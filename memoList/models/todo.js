@@ -5,10 +5,13 @@ const TodoSchema = new mongoose.Schema({
   doneAt: Date,
   order: Number
 });
+
 TodoSchema.virtual("todoId").get(function () {
   return this._id.toHexString();
 });
+
 TodoSchema.set("toJSON", {
   virtuals: true,
 });
+
 module.exports = mongoose.model("Todo", TodoSchema);
