@@ -1,6 +1,6 @@
 const express = require("express");
 const { Op } = require("sequelize");
-const { User, Goods } = require('./models');
+const { User, Goods, Cart } = require('./models');
 const jwt = require("jsonwebtoken");
 const authMiddleware = require('./middlewares/auth-middleware');
 const app = express();
@@ -124,55 +124,82 @@ router.post("/goods", async(req,res)=>{
   res.send({ result: "success"})
 });
 
-//상품 카트에 넣기
-router.post("/goods/:goodsId/cart", authMiddleware, async(req,res) => {
+//장바구니 수정하기 
+router.put("/goods/:goodsId/cart", authMiddleware, async(req,res) => {
+  const { userId } = res.locals.user;
   const { goodsId } = req.params;
   const { quantity } = req.body;
-  isCart = await Cart.findAll({ goodsId });
-  console.log(isCart, quantity);
-  if (isCart.length) {
-    await Cart.updateOne({ goodsId }, { $set: { quantity } });
+  const existsCart = await Cart.findOne({ 
+    where: {
+      userId,
+      goodsId,
+    },
+   });
+  if (existsCart) {
+    existsCart.quantity = quantity;
+    await existsCart.save();
   } else {
     await Cart.create({ goodsId: goodsId, quantity: quantity });
   }
-  res.send({ result: "success" });
+  res.send({});
 });
 
-router.get("/cart", authMiddleware, async(req,res)=>{
-  const cart = await Cart.find({});
-  const goodsId = cart.map(cart => cart.goodsId);
+//장바구니 목록 전부 불러오기
+router.get("/goods/cart", authMiddleware, async (req, res) => {
+  const { userId } = res.locals.user;
 
-  goodsInCart = await Goods.find()
-    .where("goodsId")
-    .in(goodsId);
-
-  concatCart = cart.map(c => {
-    for (let i = 0; i < goodsInCart.length; i++) {
-      if (goodsInCart[i].goodsId == c.goodsId) {
-        return { quantity: c.quantity, goods: goodsInCart[i] };
-      }
-    }
+  const cart = await Cart.findAll({
+    where: {
+      userId,
+    },
   });
 
-  res.json({
-    cart: concatCart
+  const goodsIds = cart.map((c) => c.goodsId);
+
+  // 루프 줄이기 위해 Mapping 가능한 객체로 만든것
+  const goodsKeyById = await Goods.findAll({
+    where: {
+      goodsId: goodsIds,
+    },
+  }).then((goods) =>
+    goods.reduce(
+      (prev, g) => ({
+        ...prev,
+        [g.goodsId]: g,
+      }),
+      {}
+    )
+  );
+
+  res.send({
+    cart: cart.map((c) => ({
+      quantity: c.quantity,
+      goods: goodsKeyById[c.goodsId],
+    })),
   });
 });
 
 //cart에서 삭제하기
 router.delete("/goods/:goodsId/cart", authMiddleware, async(req,res)=>{
+  const { userId } = res.locals.user;
   const { goodsId } = req.params;
   
-  const isGoodsInCart = await Cart.find({ goodsId});
-  if  (isGoodsInCart.length > 0) {
-    await Cart.deleteOne({ goodsId });
-  }
+  const existsCart = await Cart.findOne({
+    where:{
+      userId,
+      goodsId,
+    },
+  });
 
-  res.send({ result: "success" })
+  if (existsCart) {
+    await existsCart.destroy();
+  }
+  res.send({});
 });
 
 //cart update하기
 router.patch("/goods/:goodsId/cart", authMiddleware, async(req,res) => {
+  const { userId } = res.locals
   const { goodsId } = req.params;
   const { quantity } = req.body;
 
