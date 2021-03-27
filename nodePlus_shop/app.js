@@ -1,6 +1,9 @@
 const express = require("express");
+const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const User = require('./models/user');
+const authMiddleware = require('./middlewares/auth-middleware');
+const joi = require("joi");
 
 mongoose.connect("mongodb://localhost/shopping-demo", {
   useNewUrlParser: true,
@@ -12,8 +15,31 @@ db.on("error", console.error.bind(console, "connection error:"));
 const app = express();
 const router = express.Router();
 
+
+//joi validation
+const userSchema = joi.object({
+  email : joi.string()
+            .required()
+            .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }),
+  password : joi.string()
+            .required()
+            .pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
+  confirmPassword: joi.string()
+            .required(),
+  nickname : joi.string()
+            .min(2)
+            .max(10)
+            .required(),
+});
+
 router.post("/users", async(req,res)=>{
-  const { nickname, email, password, confirmPassword } = req.body;
+  try{
+    const{
+      nickname,
+      email,
+      password,
+      confirmPassword
+    } = await userSchema.validateAsync(req.body);
 
   if(password != confirmPassword){
     res.stastus(400).send({
@@ -21,6 +47,7 @@ router.post("/users", async(req,res)=>{
     });
     return; //아래의 코드를 실행할 필요가 없다
   }
+
 
   const existUser = await User.find({
     $or: [{ email }, { nickname }],
@@ -34,12 +61,52 @@ router.post("/users", async(req,res)=>{
 
   const user = new User({ email, nickname, password});
   await user.save();
-
   res.status(201).send({});
+} catch(err) {
+  console.log(err);
+  res.status(400).send({
+    errorMessage :'데이터 형식이 올바르지않습니다.'
+  });
+};
+});
+
+//로그인
+router.post("/auth", async(req,res)=>{
+  try{
+    const { email, password } = await userSchema.validateAsync(req.body);
+  
+  const user = await User.findOne({ email, password }).exec();
+  
+  if( !user ){
+    res.status(400).send({
+      errorMessage: '이메일 또는 패스워드가 잘못됐습니다.',
+  });
+  return;
+}
+  const token = jwt.sign({ userId : user.userId}, "yj-secret-key");
+  res.send({
+    token,
+  });
+} catch(err){
+  res.status(400).send({
+    errorMessage: '데이터형식이 올바르지 않습니다.'
+  });
+};
+});
+
+router.get("/users/me", authMiddleware, async(req,res)=>{
+  const { user } = res.locals;
+  res.send({
+    user: {
+      email: user.email,
+      nickname: user.nickname
+    }
+  });
 });
 
 app.use("/api", express.urlencoded({ extended: false }), router);
 app.use(express.static("assets"));
+
 
 app.listen(8080, () => {
   console.log("서버가 요청을 받을 준비가 됐어요");
