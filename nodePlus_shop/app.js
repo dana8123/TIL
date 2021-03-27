@@ -1,29 +1,22 @@
 const express = require("express");
+const connect  = require("./models/index");
 const jwt = require("jsonwebtoken");
-const mongoose = require("mongoose");
 const User = require('./models/user');
+const Cart = require('./models/cart');
+const Goods = require('./models/goods');
 const authMiddleware = require('./middlewares/auth-middleware');
 const joi = require("joi");
-
-mongoose.connect("mongodb://localhost/shopping-demo", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "connection error:"));
-
 const app = express();
 const router = express.Router();
 
+connect();
 
 //joi validation
 const userSchema = joi.object({
-  email : joi.string()
-            .required()
+  email : joi.required()
             .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }),
-  password : joi.string()
-            .required()
-            .pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
+  password : joi.required()
+            .pattern(new RegExp('^[a-z0-9]{3,30}$')),
   confirmPassword: joi.string()
             .required(),
   nickname : joi.string()
@@ -31,6 +24,11 @@ const userSchema = joi.object({
             .max(10)
             .required(),
 });
+
+const authSchema = joi.object({
+  email : joi.required(),
+password : joi.required()
+})
 
 router.post("/users", async(req,res)=>{
   try{
@@ -73,7 +71,7 @@ router.post("/users", async(req,res)=>{
 //로그인
 router.post("/auth", async(req,res)=>{
   try{
-    const { email, password } = await userSchema.validateAsync(req.body);
+    const { email, password  } = await authSchema.validateAsync(req.body);
   
   const user = await User.findOne({ email, password }).exec();
   
@@ -94,6 +92,8 @@ router.post("/auth", async(req,res)=>{
 };
 });
 
+
+//내 정보 확인 
 router.get("/users/me", authMiddleware, async(req,res)=>{
   const { user } = res.locals;
   res.send({
