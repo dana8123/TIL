@@ -1,22 +1,29 @@
-class Human {
-  public name: string;
-  public age: number;
-  public gender: string;
-  //method 클래스가 시작할 때 마다 호출됨, 클래스로부터 객체를 만들 때 마다.
-  constructor(name: string, age: number, gender: string){
-    this.name = name;
-    this.age = age;
-    this.gender = gender;
+class Block {
+  public index:number;
+  public hash: string;
+  public previousHash: string;
+  public data: string;
+  public timestamp: number;
+  constructor(
+    index:number,
+    hash: string,
+    previousHash: string,
+    data: string,
+    timestamp: number
+  ){
+    this.index = index;
+    this.hash = hash;
+    this.previousHash = previousHash;
+    this.data = data;
+    this.timestamp = timestamp;
   }
 }
-//react, js등에서 클래스를 사용할 수 있음
-//ts에서는 그냥 interface쓰는게 낫다?
 
-const lynn = new Human("Lynn", 18, "female");
-const sayHi = (person: Human) => {
-  return `Hello ${person.name}, you ar ${person.age}, and ${person.gender}`;
-};
+const genesisBlock:Block = new Block(0, "lalalalala", "", "Hellow", 123456);
 
-console.log(sayHi(person));
+let blockchain: [Block] = [genesisBlock];
+
+
+console.log(blockchain);
 
 export {};
